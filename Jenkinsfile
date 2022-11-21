@@ -16,12 +16,12 @@ spec:
     env:
     - name: DOCKER_HOST
       value: 127.0.0.1
-    image: docker:18.09
+    image: docker
     command:
     - cat
     tty: true
   - name: tools
-    image: argoproj/argo-cd-ci-builder:v0.13.1
+    image: argoproj/argo-cd-ci-builder
     command:
     - cat
     tty: true
