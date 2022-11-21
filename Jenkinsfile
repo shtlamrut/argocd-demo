@@ -20,11 +20,6 @@ spec:
     command:
     - cat
     tty: true
-  - name: git 
-    image: git
-    command:
-    - cat
-    tty: true
 """
     }
   }
@@ -48,7 +43,6 @@ spec:
         GIT_CREDS = credentials('sandesh-github-pat')
       }
       steps {
-        container('tools') {
           sh "git clone https://$GIT_CREDS_USR:$GIT_CREDS_PSW@github.com/sandeshtamboli123/argocd-demo-deploy.git"
           sh "git config user.email sandeshtamboli123@gmail.com"
           sh "git config user.name sandesh"
@@ -59,21 +53,18 @@ spec:
             sh "git commit -m 'Publish new version'"
             sh "git push"
           }
-        }
       }
     }
 
     stage('Deploy to Prod') {
       steps {
         input message:'Approve deployment?'
-        container('tools') {
           dir("argocd-demo-deploy") {
             sh "cd ./prod" 
             sh "kustomize edit set image mynamesandesh/argocd-demo:${env.GIT_COMMIT}"
             sh "git commit -m 'Publish new version'"  
             sh "git push"
           }
-        }
       }
     }
   }
