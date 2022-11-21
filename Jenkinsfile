@@ -20,8 +20,8 @@ spec:
     command:
     - cat
     tty: true
-  - name: tools
-    image: argoproj/argo-cd-ci-builder
+  - name: git 
+    image: git
     command:
     - cat
     tty: true
