@@ -55,7 +55,7 @@ spec:
 
           dir("argocd-demo-deploy") {
             sh "cd ./qa && kustomize edit set image mynamesandesh/argocd-demo:${env.GIT_COMMIT}"
-            sh "kubectl apply -k ."
+            sh "kubectl apply -k qa/"
             sh "git commit -am 'Publish new version'"
             sh "git push"
           }
@@ -69,7 +69,7 @@ spec:
         container('tools') {
           dir("argocd-demo-deploy") {
             sh "cd ./prod && kustomize edit set image mynamesandesh/argocd-demo:${env.GIT_COMMIT}"
-            sh "kubectl apply -k ."
+            sh "kubectl apply -k prod/"
             sh "git commit -am 'Publish new version'"  
             sh "git push"
           }
