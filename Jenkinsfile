@@ -55,6 +55,7 @@ spec:
 
           dir("argocd-demo-deploy") {
             sh "cd ./qa"
+            sh "kustomize build qa/"
             sh "git commit -am 'Publish new version'"
             sh "git push"
           }
@@ -68,6 +69,7 @@ spec:
         container('tools') {
           dir("argocd-demo-deploy") {
             sh "cd ./prod"
+            sh "kustomize build prod/"
             sh "git commit -am 'Publish new version'"  
             sh "git push"
           }
