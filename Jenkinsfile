@@ -69,7 +69,7 @@ spec:
         container('tools') {
           dir("argocd-demo-deploy") {
             sh "cd ./prod && kustomize edit set image mynamesandesh/argocd-demo:${env.GIT_COMMIT}"
-            sh "kustomize build  prod/"
+            sh "kustomize build prod/"
             sh "git commit -am 'Publish new version'"  
             sh "git push"
           }
