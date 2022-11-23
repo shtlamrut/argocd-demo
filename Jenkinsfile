@@ -54,8 +54,7 @@ spec:
           sh "git config --global user.name sandesh"
 
           dir("argocd-demo-deploy") {
-            sh "cd ./qa && kustomize edit set image demo=mynamesandesh/argocd-demo:${env.GIT_COMMIT}"
-            sh "kustomize build qa/"
+            sh "cd ./qa && kustomize edit set image mynamesandesh/argocd-demo:${env.GIT_COMMIT}"
             sh "git commit -am 'Publish new version'"
             sh "git push"
           }
@@ -69,7 +68,6 @@ spec:
         container('tools') {
           dir("argocd-demo-deploy") {
             sh "cd ./prod && kustomize edit set image demo=mynamesandesh/argocd-demo:${env.GIT_COMMIT}"
-            sh "kustomize build prod/"
             sh "git commit -am 'Publish new version'"  
             sh "git push"
           }
