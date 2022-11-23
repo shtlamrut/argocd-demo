@@ -54,8 +54,8 @@ spec:
           sh "git config --global user.name sandesh"
 
           dir("argocd-demo-deploy") {
-            sh "cd ./qa && kustomize edit set image hello=mynamesandesh/argocd-demo:${env.GIT_COMMIT}"
-            sh "kustomize build qa/"
+            sh "cd ./overlays/qa && kustomize edit set image nginx=mynamesandesh/argocd-demo:${env.GIT_COMMIT}"
+            sh "kustomize build ./overlays/qa"
             sh "git commit -am 'Publish new version'"
             sh "git push"
           }
@@ -68,8 +68,8 @@ spec:
         input message:'Approve deployment?'
         container('tools') {
           dir("argocd-demo-deploy") {
-            sh "cd ./prod && kustomize edit set image hello=mynamesandesh/argocd-demo:${env.GIT_COMMIT}"
-            sh "kustomize build prod/"
+            sh "cd ./overlays/prod && kustomize edit set image hello=mynamesandesh/argocd-demo:${env.GIT_COMMIT}"
+            sh "kustomize build ./overlays/prod"
             sh "git commit -am 'Publish new version'"  
             sh "git push"
           }
