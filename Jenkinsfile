@@ -68,7 +68,7 @@ spec:
         input message:'Approve deployment?'
         container('tools') {
           dir("argocd-demo-deploy") {
-            sh "cd ./overlays/prod && kustomize edit set image hello=mynamesandesh/argocd-demo:${env.GIT_COMMIT}"
+            sh "cd ./overlays/prod && kustomize edit set image nginx=mynamesandesh/argocd-demo:${env.GIT_COMMIT}"
             sh "kustomize build ./overlays/prod"
             sh "git commit -am 'Publish new version'"  
             sh "git push"
