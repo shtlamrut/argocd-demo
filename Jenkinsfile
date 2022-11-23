@@ -54,7 +54,7 @@ spec:
           sh "git config --global user.name sandesh"
 
           dir("argocd-demo-deploy") {
-            sh "cd ./qa && hello=kustomize edit set image mynamesandesh/argocd-demo:${env.GIT_COMMIT}"
+            sh "cd ./qa && kustomize edit set image hello=mynamesandesh/argocd-demo:${env.GIT_COMMIT}"
             sh "kustomize build qa/"
             sh "git commit -am 'Publish new version'"
             sh "git push"
