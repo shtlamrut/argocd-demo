@@ -36,7 +36,7 @@ spec:
       }
       steps {
         container('docker') {
-          sh "docker build -t docker.io/mynamesandesh/argocd-demo:${env.GIT_COMMIT} ."
+          sh "docker build -t mynamesandesh/argocd-demo:${env.GIT_COMMIT} ."
           sh "docker login --username $DOCKERHUB_CREDS_USR --password $DOCKERHUB_CREDS_PSW" 
           sh "docker push mynamesandesh/argocd-demo:${env.GIT_COMMIT}"
         }
