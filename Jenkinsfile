@@ -36,22 +36,22 @@ spec:
       }
       steps {
         container('docker') {
-          sh "docker build -t mynamesandesh/argocd-demo:${env.GIT_COMMIT} ."
+          sh "docker build -t shtlamrut/argocd-demo:${env.GIT_COMMIT} ."
           sh "docker login --username $DOCKERHUB_CREDS_USR --password $DOCKERHUB_CREDS_PSW" 
-          sh "docker push mynamesandesh/argocd-demo:${env.GIT_COMMIT}"
+          sh "docker push shtlamrut/argocd-demo:${env.GIT_COMMIT}"
         }
       }
     }
 
     stage('Deploy qa') {
       environment {
-        GIT_CREDS = credentials('sandesh-github-pat')
+        GIT_CREDS = credentials('github')
       }
       steps {
         container('tools') {
           sh "git clone https://$GIT_CREDS_USR:$GIT_CREDS_PSW@github.com/sandeshtamboli123/argocd-demo-deploy.git"
-          sh "git config --global user.email sandeshtamboli123@gmail.com"
-          sh "git config --global user.name sandesh"
+          sh "git config --global user.email shtlamrut@gmail.com"
+          sh "git config --global user.name shtlamrut"
 
           dir("argocd-demo-deploy") {
             sh "cd ./overlays/qa && kustomize edit set image my-app=*:${env.GIT_COMMIT}"
