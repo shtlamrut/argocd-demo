@@ -24,7 +24,8 @@ spec:
     image: nekottyo/kustomize-kubeval
     command:
     - cat
-    tty: true  
+    tty: true
+  serviceAccountName: "jenkins"
 """
     }
   }
