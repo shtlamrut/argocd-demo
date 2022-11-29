@@ -7,6 +7,11 @@ pipeline {
 apiVersion: v1
 kind: Pod
 spec:
+  volumes:
+  - name: sharedvolume
+    emptyDir: {}
+  - name: docker-socket
+    emptyDir: {}
   containers:
   - name: docker
     env:
@@ -16,6 +21,20 @@ spec:
     command:
     - cat
     tty: true
+    volumeMounts:
+    - name: docker-socket
+      mountPath: /var/run
+    - name: sharedvolume
+      mountPath: /root/.docker
+  - name: docker-daemon
+    image: docker:19.03.1-dind
+    securityContext:
+      privileged: true
+    volumeMounts:
+    - name: docker-socket
+      mountPath: /var/run
+    - name: sharedvolume
+      mountPath: /root/.docker
   - name: tools
     image: nekottyo/kustomize-kubeval
     command:
