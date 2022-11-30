@@ -61,7 +61,7 @@ spec:
 
     stage('Deploy qa') {
       environment {
-        GIT_CREDS = credentials('github-pass')
+        GIT_CREDS = credentials('github')
       }
       steps {
         container('tools') {
