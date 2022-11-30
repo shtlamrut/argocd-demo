@@ -10,8 +10,6 @@ spec:
   containers:
   - name: docker
     env:
-    //- name: DOCKER_HOST
-      //value: 127.0.0.1
     image: docker
     command:
     - cat
