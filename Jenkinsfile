@@ -32,9 +32,9 @@ spec:
       }
       steps {
         container('docker') {
-          sh "sudo docker build -t shtlamrut/argocd-demo:${env.GIT_COMMIT} ."
-          sh "sudo docker login --username $DOCKERHUB_CREDS_USR --password $DOCKERHUB_CREDS_PSW" 
-          sh "sudo docker push shtlamrut/argocd-demo:${env.GIT_COMMIT}"
+          sh " docker build -t shtlamrut/argocd-demo:${env.GIT_COMMIT} ."
+          sh " docker login --username $DOCKERHUB_CREDS_USR --password $DOCKERHUB_CREDS_PSW" 
+          sh " docker push shtlamrut/argocd-demo:${env.GIT_COMMIT}"
         }
       }
     }
