@@ -7,11 +7,6 @@ pipeline {
 apiVersion: v1
 kind: Pod
 spec:
-  volumes:
-  - name: sharedvolume
-    emptyDir: {}
-  - name: docker-socket
-    emptyDir: {}
   containers:
   - name: dind
     image: docker:18.09-dind
@@ -25,26 +20,11 @@ spec:
     command:
     - cat
     tty: true
-    volumeMounts:
-    - name: sharedvolume
-      mountPath: /root/.docker
-    - name: docker-socket
-      mountPath: /var/run
-  - name: docker-daemon
-    image: docker:19.03.1-dind
-    securityContext:
-      privileged: true
-    volumeMounts:
-    - name: docker-socket
-      mountPath: /var/run
-    - name: sharedvolume
-      mountPath: /root/.docker
   - name: tools
     image: nekottyo/kustomize-kubeval
     command:
     - cat
-    tty: true
-  serviceAccountName: "jenkins"
+    tty: true  
 """
     }
   }
