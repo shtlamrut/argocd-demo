@@ -19,11 +19,24 @@ spec:
     command:
     - cat
     tty: true
+    volumeMounts:
+    - name: sharedvolume
+      mountPath: /root/.docker
+    - name: docker-socket
+      mountPath: /var/run
   - name: tools
     image: nekottyo/kustomize-kubeval
     command:
     - cat
     tty: true
+  - name: docker
+    image: docker:19.03.1
+    command:
+    volumeMounts:
+    - name: docker-socket
+      mountPath: /var/run
+    - name: sharedvolume
+      mountPath: /root/.docker
   - name: docker-daemon
     image: docker:19.03.1-dind
     securityContext:
