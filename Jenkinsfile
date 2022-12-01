@@ -13,8 +13,14 @@ spec:
   - name: docker-socket
     emptyDir: {}
   containers:
+  - name: dind
+    image: docker:18.09-dind
+    securityContext:
+      privileged: true
   - name: docker
     env:
+    - name: DOCKER_HOST
+      value: 127.0.0.1
     image: docker
     command:
     - cat
