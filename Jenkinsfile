@@ -44,14 +44,6 @@ spec:
     command:
     - cat
     tty: true
-  - name: docker
-    image: docker:19.03.1
-    command:
-    volumeMounts:
-    - name: docker-socket
-      mountPath: /var/run
-    - name: sharedvolume
-      mountPath: /root/.docker
   serviceAccountName: "jenkins"
 """
     }
