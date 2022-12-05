@@ -8,10 +8,6 @@ apiVersion: v1
 kind: Pod
 spec:
   containers:
-  - name: dind
-    image: docker:18.09-dind
-    securityContext:
-      privileged: true
   - name: docker
     env:
     - name: DOCKER_HOST
@@ -32,7 +28,7 @@ spec:
 
     stage('Build') {
       environment {
-        DOCKERHUB_CREDS = credentials('dockerhub')
+        DOCKERHUB_CREDS = credentials('dockerHub')
       }
       steps {
         container('docker') {
