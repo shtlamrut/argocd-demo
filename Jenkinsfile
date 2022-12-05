@@ -17,7 +17,7 @@ spec:
     - cat
     tty: true
   - name: tools
-    image: hello-world
+    image: nekottyo/kustomize-kubeval
     command:
     - cat
     tty: true
