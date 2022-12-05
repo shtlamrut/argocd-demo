@@ -7,12 +7,11 @@ pipeline {
 apiVersion: v1
 kind: Pod
 spec:
-  volumes:
-  - name: sharedvolume
-    emptyDir: {}
-  - name: docker-socket
-    emptyDir: {}
   containers:
+  - name: dind
+    image: docker:18.09-dind
+    securityContext:
+      privileged: true
   - name: docker
     env:
     - name: DOCKER_HOST
