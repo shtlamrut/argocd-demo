@@ -8,19 +8,23 @@ apiVersion: v1
 kind: Pod
 spec:
   containers:
+  - name: dind
+    image: docker:18.09-dind
+    securityContext:
+      privileged: true
   - name: docker
     env:
     - name: DOCKER_HOST
       value: 127.0.0.1
-    image: docker
+    image: docker:18.09
     command:
     - cat
     tty: true
   - name: tools
-    image: nekottyo/kustomize-kubeval
+    image: argoproj/argo-cd-ci-builder:v0.13.1
     command:
     - cat
-    tty: true  
+    tty: true
 """
     }
   }
@@ -28,13 +32,14 @@ spec:
 
     stage('Build') {
       environment {
-        DOCKERHUB_CREDS = credentials('dockerHub')
+        DOCKERHUB_CREDS = credentials('dockerhub')
       }
       steps {
         container('docker') {
-          sh " docker build -t shtlamrut/argocd-demo:${env.GIT_COMMIT} ."
-          sh " docker login --username $DOCKERHUB_CREDS_USR --password $DOCKERHUB_CREDS_PSW" 
-          sh " docker push shtlamrut/argocd-demo:${env.GIT_COMMIT}"
+          // Build new image
+          sh "until docker ps; do sleep 3; done && docker build -t shtlamrut/argocd-demo:${env.GIT_COMMIT} ."
+          // Publish new image
+          sh "docker login --username $DOCKERHUB_CREDS_USR --password $DOCKERHUB_CREDS_PSW && docker push shtlamrut/argocd-demo:${env.GIT_COMMIT}"
         }
       }
     }
@@ -46,33 +51,25 @@ spec:
       steps {
         container('tools') {
           sh "git clone https://$GIT_CREDS_USR:$GIT_CREDS_PSW@github.com/shtlamrut/argocd-demo-deploy.git"
-          sh "git config --global user.email shtlamrut@gmail.com"
-          sh "git config --global user.name shtlamrut"
+          sh "git config --global user.email 'shtlamrut@gmail.com'"
 
           dir("argocd-demo-deploy") {
-            sh "cd ./overlays/qa && kustomize edit set image my-app=*:${env.GIT_COMMIT}"
-            sh "kustomize build ./overlays/qa"
-            sh "git commit -am 'Publish new version'"
-            sh "git push"
+            sh "cd ./e2e && kustomize edit set image alexmt/argocd-demo:${env.GIT_COMMIT}"
+            sh "git commit -am 'Publish new version' && git push || echo 'no changes'"
           }
-        }    
+        }
       }
     }
 
     stage('Deploy to Prod') {
       steps {
-        script {
-                def deploymentDelay = input id: 'Deploy', message: 'Deploy to production?', submitter: 'rkivisto,admin', parameters: [choice(choices: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24'], description: 'Hours to delay deployment?', name: 'deploymentDelay')]
-                sleep time: deploymentDelay.toInteger(), unit: 'HOURS'
-            }
+        input message:'Approve deployment?'
         container('tools') {
           dir("argocd-demo-deploy") {
-            sh "cd ./overlays/prod && kustomize edit set image my-app=*:${env.GIT_COMMIT}"
-            sh "kustomize build ./overlays/prod"
-            sh "git commit -am 'Publish new version'"  
-            sh "git push"
+            sh "cd ./prod && kustomize edit set image shtlamrut/argocd-demo:${env.GIT_COMMIT}"
+            sh "git commit -am 'Publish new version' && git push || echo 'no changes'"
           }
-        }  
+        }
       }
     }
   }
