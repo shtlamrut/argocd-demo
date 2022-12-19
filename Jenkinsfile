@@ -8,11 +8,15 @@ apiVersion: v1
 kind: Pod
 spec:
   containers:
+  - name: dind
+    image: docker:18.09-dind
+    securityContext:
+      privileged: true
   - name: docker
     env:
     - name: DOCKER_HOST
       value: 127.0.0.1
-    image: docker:18.09
+    image: docker
     command:
     - cat
     tty: true
@@ -20,7 +24,7 @@ spec:
     image: nekottyo/kustomize-kubeval
     command:
     - cat
-    tty: true
+    tty: true  
 """
     }
   }
@@ -32,10 +36,9 @@ spec:
       }
       steps {
         container('docker') {
-          // Build new image
-          sh "until docker ps; do sleep 3; done && docker build -t shtlamrut/argocd-demo:${env.GIT_COMMIT} ."
-          // Publish new image
-          sh "docker login --username $DOCKERHUB_CREDS_USR --password $DOCKERHUB_CREDS_PSW && docker push shtlamrut/argocd-demo:${env.GIT_COMMIT}"
+          sh "docker build -t shtlamrut/argocd-demo:${env.GIT_COMMIT} ."
+          sh "docker login --username $DOCKERHUB_CREDS_USR --password $DOCKERHUB_CREDS_PSW" 
+          sh "docker push shtlamrut/argocd-demo:${env.GIT_COMMIT}"
         }
       }
     }
@@ -46,27 +49,20 @@ spec:
       }
       steps {
         container('tools') {
-          sh "git clone https://$GIT_CREDS_USR:$GIT_CREDS_PSW@github.com/shtlamrut/argocd-demo-deploy.git"
-          sh "git config --global user.email 'shtlamrut@gmail.com'"
-
-          dir("argocd-demo-deploy") {
-            sh "cd ./e2e && kustomize edit set image alexmt/argocd-demo:${env.GIT_COMMIT}"
-            sh "git commit -am 'Publish new version' && git push || echo 'no changes'"
-          }
-        }
-      }
-    }
-
-    stage('Deploy to Prod') {
-      steps {
-        input message:'Approve deployment?'
-        container('tools') {
-          dir("argocd-demo-deploy") {
-            sh "cd ./prod && kustomize edit set image shtlamrut/argocd-demo:${env.GIT_COMMIT}"
-            sh "git commit -am 'Publish new version' && git push || echo 'no changes'"
-          }
-        }
+          sh"""
+            git clone https://$GIT_CREDS_USR:$GIT_CREDS_PSW@github.com/shtlamrut/argocd-demo-deploy.git
+            git config --global user.email shtlmarut@gmail.com
+            git config --global user.name shtlamrut
+            cd ./argocd-demo-deploy/chart
+            def text = readFile file: 'values.yaml'
+            text = text.replaceAll("%tag%", "${env.GIT_COMMIT}") 
+            export GIT_COMMIT=${env.GIT_COMMIT}
+            git commit -am 'Update app image tag to ${env.GIT_COMMIT}'
+            git push
+         """   
+        }    
       }
     }
   }
 }
+
