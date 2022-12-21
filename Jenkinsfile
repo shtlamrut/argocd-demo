@@ -11,11 +11,6 @@ apiVersion: v1
             app: test
         spec:
           containers:
-          - name: git
-            image: bitnami/git:latest
-            command:
-            - cat
-            tty: true
           - name: kaniko
             image: gcr.io/kaniko-project/executor:debug
             command:
