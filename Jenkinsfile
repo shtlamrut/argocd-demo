@@ -9,16 +9,6 @@ pipeline {
             app: test
         spec:
           containers:
-          - name: git
-            image: bitnami/git:latest
-            command:
-            - cat
-            tty: true
-          - name: maven
-            image: maven:3.8.3-adoptopenjdk-11
-            command:
-            - cat
-            tty: true
           - name: kaniko
             image: gcr.io/kaniko-project/executor:debug
             command:
@@ -34,8 +24,9 @@ pipeline {
               items:
                 - key: .dockerconfigjson
                   path: config.json
+          
       '''
-    }      
+    }      [
   }
   environment{
     DOCKERHUB_USERNAME = "shtlamrut"
