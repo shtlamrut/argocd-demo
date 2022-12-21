@@ -34,7 +34,7 @@ apiVersion: v1
       '''
     }      
   }
-  stages {
+ stages {
 
     stage('Build') {
       environment {
@@ -57,7 +57,7 @@ apiVersion: v1
         container('tools') {
           sh"""
             git clone https://$GIT_CREDS_USR:$GIT_CREDS_PSW@github.com/shtlamrut/argocd-demo-deploy.git
-            git config --global user.email shtlmarut@gmail.com
+            git config --global user.email shtlamrut@gmail.com
             git config --global user.name shtlamrut
             cd ./argocd-demo-deploy/chart
             def text = readFile file: 'values.yaml'
@@ -71,4 +71,3 @@ apiVersion: v1
     }
   }
 }
-
