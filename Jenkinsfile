@@ -1,16 +1,24 @@
 pipeline {
   agent {
     kubernetes {
-      label 'jenkins-slave'
-      defaultContainer 'jnlp'
-      yaml """
-apiVersion: v1
+      yaml '''
+        apiVersion: v1
         kind: Pod
         metadata:
           labels:
             app: test
         spec:
           containers:
+          - name: git
+            image: bitnami/git:latest
+            command:
+            - cat
+            tty: true
+          - name: maven
+            image: maven:3.8.3-adoptopenjdk-11
+            command:
+            - cat
+            tty: true
           - name: kaniko
             image: gcr.io/kaniko-project/executor:debug
             command:
@@ -29,20 +37,34 @@ apiVersion: v1
       '''
     }      
   }
+  environment{
+    DOCKERHUB_USERNAME = "shtlamrut"
+    APP_NAME = "kaniko-webapp-demo"
+    IMAGE_NAME = "${DOCKERHUB_USERNAME}" + "/" + "${APP_NAME}"
+    IMAGE_TAG = "${BUILD_NUMBER}"
+  }
  stages {
-
-    stage('Build') {
-      environment {
-        DOCKERHUB_CREDS = credentials('dockerHub')
-      }
+    stage('Checkout SCM') {
       steps {
-        container('docker') {
-          sh "docker build -t shtlamrut/argocd-demo:${env.GIT_COMMIT} ."
-          sh "docker login --username $DOCKERHUB_CREDS_USR --password $DOCKERHUB_CREDS_PSW" 
-          sh "docker push shtlamrut/argocd-demo:${env.GIT_COMMIT}"
+        container('git') {
+          git url: 'https://github.com/kunchalavikram1427/maven-employee-web-application.git',
+          branch: 'master'
+        }
+      }
+    }
+    stage('Build SW'){
+      steps {
+        container('maven'){
+          sh 'mvn -Dmaven.test.failure.ignore=true clean package'
+        }
+      }
+    }
+    stage('Build Container Image'){
+      steps {
+        container('kaniko'){
+          sh "/kaniko/executor --context $WORKSPACE --destination $IMAGE_NAME:$IMAGE_TAG"
         }
       }
     }
   }
-   
-       
+}
