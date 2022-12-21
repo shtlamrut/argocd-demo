@@ -43,26 +43,6 @@ apiVersion: v1
         }
       }
     }
-
-    stage('Deploy qa') {
-      environment {
-        GIT_CREDS = credentials('github')
-      }
-      steps {
-        container('tools') {
-          sh"""
-            //git clone https://$GIT_CREDS_USR:$GIT_CREDS_PSW@github.com/shtlamrut/argocd-demo-deploy.git
-            git config --global user.email shtlamrut@gmail.com
-            git config --global user.name shtlamrut
-            cd ./argocd-demo-deploy/chart
-            def text = readFile file: 'values.yaml'
-            text = text.replaceAll("%tag%", "${env.GIT_COMMIT}") 
-            export GIT_COMMIT=${env.GIT_COMMIT}
-            git commit -am 'Update app image tag to ${env.GIT_COMMIT}'
-            git push
-         """   
-        }    
-      }
-    }
   }
-}
+   
+       
