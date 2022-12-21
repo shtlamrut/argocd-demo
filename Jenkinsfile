@@ -47,7 +47,7 @@ pipeline {
     stage('Checkout SCM') {
       steps {
         container('git') {
-          git url: 'https://github.com/kunchalavikram1427/maven-employee-web-application.git',
+          git url: 'https://github.com/shtlamrut/argocd-demo-deploy.git',
           branch: 'master'
         }
       }
