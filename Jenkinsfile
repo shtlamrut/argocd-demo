@@ -26,7 +26,7 @@ pipeline {
                   path: config.json
           
       '''
-    }      [
+    }      
   }
   environment{
     DOCKERHUB_USERNAME = "shtlamrut"
