@@ -9,21 +9,22 @@ kind: Pod
 spec:
   containers:
   - name: kaniko
-    image: gcr.io/kaniko-project/executor:latest
-    args:
-    - "--context=git@github.com:shtlamrut/argocd-demo.git #refs/heads/master"
-    - "--destination=shtlamrut/kaniko-demo-image:1.0"
-    volumeMounts:
-    - name: kaniko-secret
-      mountPath: /kaniko/.docker
-  restartPolicy: Never
-  volumes:
-  - name: kaniko-secret
-    secret:
-      secretName: dockercred
-      items:
-        - key: .dockerconfigjson
-          path: config.json
+        image: gcr.io/kaniko-project/executor:debug
+        command:
+        - sleep
+        args:
+        - 9999999
+        volumeMounts:
+        - name: kaniko-secret
+          mountPath: /kaniko/.docker
+      restartPolicy: Never
+      volumes:
+      - name: kaniko-secret
+        secret:
+            secretName: dockercred
+            items:
+            - key: .dockerconfigjson
+              path: config.json
   - name: docker
     env:
     - name: DOCKER_HOST
