@@ -11,7 +11,7 @@ spec:
   - name: kaniko
     image: gcr.io/kaniko-project/executor:latest
     args:
-    - "--context=git://<Git API token>@github.com/computingforgeeks/kubernetes-kaniko.git #refs/heads/master"
+    - "--context=git@github.com:shtlamrut/argocd-demo.git #refs/heads/master"
     - "--destination=shtlamrut/kaniko-demo-image:1.0"
     volumeMounts:
     - name: kaniko-secret
