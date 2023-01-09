@@ -5,22 +5,32 @@ pipeline {
       defaultContainer 'jnlp'
       yaml """
 apiVersion: v1
-kind: Pod
-spec:
-  containers:
-  - name: docker
-    env:
-    - name: DOCKER_HOST
-      value: 127.0.0.1
-    image: docker
-    command:
-    - cat
-    tty: true
-  - name: tools
-    image: nekottyo/kustomize-kubeval
-    command:
-    - cat
-    tty: true  
+    kind: Pod
+    spec:
+      containers:
+      - name: maven
+        image: maven:3.8.1-jdk-8
+        command:
+        - sleep
+        args:
+        - 99d
+      - name: kaniko
+        image: gcr.io/kaniko-project/executor:debug
+        command:
+        - sleep
+        args:
+        - 9999999
+        volumeMounts:
+        - name: kaniko-secret
+          mountPath: /kaniko/.docker
+      restartPolicy: Never
+      volumes:
+      - name: kaniko-secret
+        secret:
+            secretName: dockercred
+            items:
+            - key: .dockerconfigjson
+              path: config.json
 """
     }
   }
