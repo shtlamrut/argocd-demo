@@ -15,7 +15,7 @@ spec:
   - name: docker
     env:
     - name: DOCKER_HOST
-      value: 127.0.0.1
+      value: tcp://localhost:2375/
     image: docker
     command:
     - cat
