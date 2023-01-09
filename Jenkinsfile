@@ -2,32 +2,48 @@ pipeline {
   agent {
     kubernetes {
       label 'jenkins-slave'
-      defaultContainer 'jnlp'
-      yaml """
+       defaultContainer 'jnlp'
+       yaml """
 apiVersion: v1
 kind: Pod
 spec:
-  containers:
-  - name: dind
-    image: docker:18.09-dind
-    securityContext:
-      privileged: true
-  - name: docker
-    env:
+  volumes:
+    - name: sharedvolume
+      emptyDir: {}
+    - name: docker-socket
+      emptyDir: {}
+   containers:
+    - name: docker
+      env:
     - name: DOCKER_HOST
       value: 127.0.0.1
-    image: docker
-    command:
-    - cat
-    tty: true
-  - name: tools
-    image: nekottyo/kustomize-kubeval
-    command:
-    - cat
-    tty: true  
+     image: docker
+     command:
+      - cat
+      tty: true
+  volumeMounts:
+    - name: docker-socket
+      mountPath: /var/run
+    - name: sharedvolume
+      mountPath: /root/.docker
+    - name: docker-daemon
+      image: docker:19.03.1-dind
+      securityContext:
+        privileged: true
+  volumeMounts:
+    - name: docker-socket
+      mountPath: /var/run
+    - name: sharedvolume
+      mountPath: /root/.docker
+    - name: tools
+      image: nekottyo/kustomize-kubeval
+      command:
+      - cat
+      tty: true
+  serviceAccountName: "jenkins"
 """
-    }
-  }
+}
+}
   stages {
 
     stage('Build') {
