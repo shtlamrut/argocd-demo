@@ -8,23 +8,10 @@ apiVersion: v1
 kind: Pod
 spec:
   containers:
-  - name: kaniko
-    image: gcr.io/kaniko-project/executor:latest
-    command:
-    - sleep
-    args:
-    - 9999999
-    volumeMounts:
-    - name: kaniko-secret
-      mountPath: /kaniko/.docker
-   // restartPolicy: Never
-   volumes:
-   - name: kaniko-secret
-     secret:
-       secretName: dockercred
-       items:
-       - key: .dockerconfigjson
-       path: config.json
+  - name: dind
+    image: docker:18.09-dind
+    securityContext:
+      privileged: true
   - name: docker
     env:
     - name: DOCKER_HOST
