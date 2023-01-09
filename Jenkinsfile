@@ -69,7 +69,7 @@ spec:
       steps {
         container('tools') {
           sh"""
-            git clone https://$GIT_CREDS_USR:$GIT_CREDS_PSW@github.com/shtlamrut/argocd-demo-deploy.git
+            //git clone https://$GIT_CREDS_USR:$GIT_CREDS_PSW@github.com/shtlamrut/argocd-demo-deploy.git
             git config --global user.email shtlamrut@gmail.com
             git config --global user.name shtlamrut
             cd ./argocd-demo-deploy/chart
