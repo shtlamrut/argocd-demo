@@ -1,10 +1,5 @@
-pipeline {
-  agent {
-    kubernetes {
-      label 'jenkins-slave'
-      defaultContainer 'jnlp'
-      yaml """
-apiVersion: v1
+podTemplate(yaml: '''
+    apiVersion: v1
     kind: Pod
     spec:
       containers:
@@ -31,9 +26,7 @@ apiVersion: v1
             items:
             - key: .dockerconfigjson
               path: config.json
-"""
-    }
-  }
+''') {
   stages {
 
     stage('Image Build') {
