@@ -8,42 +8,45 @@ apiVersion: v1
 kind: Pod
 spec:
   volumes:
-    - name: sharedvolume
-      emptyDir: {}
-    - name: docker-socket
-      emptyDir: {}
-   containers:
-    - name: docker
-      env:
+  - name: sharedvolume
+    emptyDir: {}
+  - name: docker-socket
+    emptyDir: {}
+  containers:
+  - name: dind
+    image: docker:18.09-dind
+    securityContext:
+      privileged: true
+  - name: docker
+    env:
     - name: DOCKER_HOST
       value: 127.0.0.1
-     image: docker
-     command:
-      - cat
-      tty: true
-  volumeMounts:
+    image: docker
+    command:
+    - cat
+    tty: true
+  - name: tools
+    image: nekottyo/kustomize-kubeval
+    command:
+    - cat
+    tty: true  
+    volumeMounts:
     - name: docker-socket
       mountPath: /var/run
     - name: sharedvolume
-      mountPath: /root/.docker
-    - name: docker-daemon
-      image: docker:19.03.1-dind
-      securityContext:
-        privileged: true
-  volumeMounts:
+      mountPath: /root/.docker  
+  - name: docker-daemon
+    image: docker:19.03.1-dind
+    securityContext:
+      privileged: true
+    volumeMounts:
     - name: docker-socket
       mountPath: /var/run
     - name: sharedvolume
-      mountPath: /root/.docker
-    - name: tools
-      image: nekottyo/kustomize-kubeval
-      command:
-      - cat
-      tty: true
-  serviceAccountName: "jenkins"
-"""
-}
-}
+      mountPath: /root/.docker 
+'''
+      }
+	}  
   stages {
 
     stage('Build') {
