@@ -28,7 +28,7 @@ podTemplate(yaml: '''
               path: config.json
 ''') {
   node(POD_LABEL) {
-  stages {
+  //stages {
 
     stage('Image Build') {
       environment {
@@ -75,4 +75,4 @@ podTemplate(yaml: '''
    }
 }
 }
-}
+//}
