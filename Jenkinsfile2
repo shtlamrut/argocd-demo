@@ -27,47 +27,17 @@ pipeline {
     }
   }
   stages {
-    stage('Clone') {
-      steps {
-        container('maven') {
-          git branch: 'main', changelog: false, poll: false, url: 'https://mohdsabir-cloudside@bitbucket.org/mohdsabir-cloudside/java-app.git'
-        }
+    stage('Image Build') {
+      environment {
+        DOCKERHUB_CREDS = credentials('dockerHub')
       }
-    }  
-    stage('Build-Jar-file') {
-      steps {
-        container('maven') {
-          sh 'mvn package'
-        }
-      }
-    }
-    stage('Build-Docker-Image') {
       steps {
         container('docker') {
-          sh 'docker build -t ss69261/testing-image:latest .'
+          sh "docker build -t shtlamrut/argocd-demo:${env.GIT_COMMIT} ."
+          sh "docker login --username $DOCKERHUB_CREDS_USR --password $DOCKERHUB_CREDS_PSW" 
+          sh "docker push shtlamrut/argocd-demo:${env.GIT_COMMIT}"
         }
       }
     }
-    stage('Login-Into-Docker') {
-      steps {
-        container('docker') {
-          sh 'docker login -u shtlamrut -p saiprasad@16'
-      }
-    }
-    }
-     stage('Push-Images-Docker-to-DockerHub') {
-      steps {
-        container('docker') {
-          sh 'docker push ss69261/testing-image:latest'
-      }
-    }
-     }
-  }
-    post {
-      always {
-        container('docker') {
-          sh 'docker logout'
-      }
-      }
-    }
+    
 }
