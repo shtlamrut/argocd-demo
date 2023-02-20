@@ -1,87 +1,73 @@
 pipeline {
   agent {
     kubernetes {
-      label 'jenkins-slave'
-       defaultContainer 'jnlp'
-       yaml """
-apiVersion: v1
-kind: Pod
-spec:
-  volumes:
-  - name: sharedvolume
-    emptyDir: {}
-  - name: docker-socket
-    emptyDir: {}
-  containers:
-  - name: dind
-    image: docker:18.09-dind
-    securityContext:
-      privileged: true
-  - name: docker
-    env:
-    - name: DOCKER_HOST
-      value: 127.0.0.1
-    image: docker
-    command:
-    - cat
-    tty: true
-  - name: tools
-    image: nekottyo/kustomize-kubeval
-    command:
-    - cat
-    tty: true  
-    volumeMounts:
-    - name: docker-socket
-      mountPath: /var/run
-    - name: sharedvolume
-      mountPath: /root/.docker  
-  - name: docker-daemon
-    image: docker:19.03.1-dind
-    securityContext:
-      privileged: true
-    volumeMounts:
-    - name: docker-socket
-      mountPath: /var/run
-    - name: sharedvolume
-      mountPath: /root/.docker 
-'''
-      }
-	}  
+      yaml '''
+        apiVersion: v1
+        kind: Pod
+        spec:
+          containers:
+          - name: maven
+            image: maven:alpine
+            command:
+            - cat
+            tty: true
+          - name: docker
+            image: docker:latest
+            command:
+            - cat
+            tty: true
+            volumeMounts:
+             - mountPath: /var/run/docker.sock
+               name: docker-sock
+          volumes:
+          - name: docker-sock
+            hostPath:
+              path: /var/run/docker.sock    
+        '''
+    }
+  }
   stages {
-
-    stage('Build') {
-      environment {
-        DOCKERHUB_CREDS = credentials('dockerHub')
-      }
+    stage('Clone') {
       steps {
-        container('docker') {
-          sh "docker build -t shtlamrut/argocd-demo:${env.GIT_COMMIT} ."
-          sh "docker login --username $DOCKERHUB_CREDS_USR --password $DOCKERHUB_CREDS_PSW" 
-          sh "docker push shtlamrut/argocd-demo:${env.GIT_COMMIT}"
+        container('maven') {
+          git branch: 'main', changelog: false, poll: false, url: 'https://mohdsabir-cloudside@bitbucket.org/mohdsabir-cloudside/java-app.git'
+        }
+      }
+    }  
+    stage('Build-Jar-file') {
+      steps {
+        container('maven') {
+          sh 'mvn package'
         }
       }
     }
-
-    stage('Deploy qa') {
-      environment {
-        GIT_CREDS = credentials('github')
-      }
+    stage('Build-Docker-Image') {
       steps {
-        container('tools') {
-          sh"""
-            git clone https://$GIT_CREDS_USR:$GIT_CREDS_PSW@github.com/shtlamrut/argocd-demo-deploy.git
-            git config --global user.email shtlamrut@gmail.com
-            git config --global user.name shtlamrut
-            cd ./argocd-demo-deploy/chart
-            def text = readFile file: 'values.yaml'
-            text = text.replaceAll("%tag%", "${env.GIT_COMMIT}") 
-            export GIT_COMMIT=${env.GIT_COMMIT}
-            git commit -am 'Update app image tag to ${env.GIT_COMMIT}'
-            git push
-         """   
-        }    
+        container('docker') {
+          sh 'docker build -t ss69261/testing-image:latest .'
+        }
       }
     }
+    stage('Login-Into-Docker') {
+      steps {
+        container('docker') {
+          sh 'docker login -u shtlamrut -p saiprasad@16'
+      }
+    }
+    }
+     stage('Push-Images-Docker-to-DockerHub') {
+      steps {
+        container('docker') {
+          sh 'docker push ss69261/testing-image:latest'
+      }
+    }
+     }
   }
-}
+    post {
+      always {
+        container('docker') {
+          sh 'docker logout'
+      }
+      }
+    }
 }
